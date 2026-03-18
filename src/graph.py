@@ -79,12 +79,13 @@ def plot_graph(circles: List[Circle], G: nx.Graph) -> None:
             color=color, linewidth=1.5, alpha=0.6, zorder=1,
         )
 
-        # Rótulo no meio da aresta (uma vez por peso)
-        if w not in drawn_labels:
-            mx, my = (ci.cx + cj.cx) / 2, (ci.cy + cj.cy) / 2
-            ax.text(mx, my, edge_labels[w], color=color,
-                    fontsize=7, ha="center", fontfamily="monospace")
-            drawn_labels.add(w)
+        # Número do peso em cada aresta
+        mx, my = (ci.cx + cj.cx) / 2, (ci.cy + cj.cy) / 2
+        ax.text(mx, my, str(w), color=color,
+                fontsize=10, ha="center", va="center",
+                fontfamily="monospace", fontweight="bold",
+                bbox=dict(facecolor="#0e0e14", edgecolor=color,
+                          boxstyle="round,pad=0.3", linewidth=1))
 
     # Desenha os círculos
     colors = plt.cm.cool(np.linspace(0.2, 0.85, len(circles)))
