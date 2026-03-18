@@ -40,6 +40,16 @@ class Circle:
         return self.center[1]
 
     @property
+    def area(self) -> float:
+        """Área do círculo: A = π r²."""
+        return np.pi * self.radius ** 2
+
+    @property
+    def perimeter(self) -> float:
+        """Perímetro (circunferência): C = 2π r."""
+        return 2 * np.pi * self.radius
+
+    @property
     def bounding_box(self) -> Tuple[float, float, float, float]:
         """(x_min, y_min, x_max, y_max)"""
         return (

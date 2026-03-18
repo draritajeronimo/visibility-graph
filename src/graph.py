@@ -56,7 +56,7 @@ def plot_graph(circles: List[Circle], G: nx.Graph) -> None:
     Visualiza os círculos e as arestas do grafo coloridas por peso.
 
     Cores das arestas:
-        Verde  (#00e676) — peso 0: visibilidade total
+        Verde   (#00e676) — peso 0: visibilidade total
         Amarelo (#ffd600) — peso 1: bloqueio parcial
         Vermelho (#ff1744) — peso 2: bloqueio total
     """
@@ -67,8 +67,7 @@ def plot_graph(circles: List[Circle], G: nx.Graph) -> None:
     edge_colors = {0: "#00e676", 1: "#ffd600", 2: "#ff1744"}
     edge_labels = {0: "visível", 1: "parcial", 2: "bloqueado"}
 
-    # Desenha as arestas
-    drawn_labels = set()
+    # Desenha as arestas — peso maior fica por cima (zorder)
     for i, j, data in G.edges(data=True):
         w = data["weight"]
         ci, cj = circles[i], circles[j]
@@ -76,16 +75,24 @@ def plot_graph(circles: List[Circle], G: nx.Graph) -> None:
 
         ax.plot(
             [ci.cx, cj.cx], [ci.cy, cj.cy],
-            color=color, linewidth=1.5, alpha=0.6, zorder=1,
+            color=color, linewidth=1.5, alpha=0.8, zorder=w + 1,
         )
 
-        # Número do peso em cada aresta
+        # Número do peso em cada aresta — deslocado perpendicularmente
         mx, my = (ci.cx + cj.cx) / 2, (ci.cy + cj.cy) / 2
-        ax.text(mx, my, str(w), color=color,
+
+        dx, dy = cj.cx - ci.cx, cj.cy - ci.cy
+        length = np.sqrt(dx ** 2 + dy ** 2) or 1.0
+        px, py = -dy / length, dx / length
+        offset = 0.5
+        lx, ly = mx + px * offset, my + py * offset
+
+        ax.text(lx, ly, str(w), color=color,
                 fontsize=10, ha="center", va="center",
                 fontfamily="monospace", fontweight="bold",
                 bbox=dict(facecolor="#0e0e14", edgecolor=color,
-                          boxstyle="round,pad=0.3", linewidth=1))
+                          boxstyle="round,pad=0.3", linewidth=1),
+                zorder=w + 2)
 
     # Desenha os círculos
     colors = plt.cm.cool(np.linspace(0.2, 0.85, len(circles)))
@@ -94,13 +101,14 @@ def plot_graph(circles: List[Circle], G: nx.Graph) -> None:
             circle.center, circle.radius,
             facecolor=(*color[:3], 0.15),
             edgecolor=color, linewidth=2,
+            zorder=5,
         )
         ax.add_patch(filled)
-        ax.plot(*circle.center, "o", color=color, markersize=5, zorder=5)
+        ax.plot(*circle.center, "o", color=color, markersize=5, zorder=6)
         ax.text(
             circle.cx, circle.cy + circle.radius * 0.08,
             circle.label, color=color, fontsize=9,
-            ha="center", fontfamily="monospace",
+            ha="center", fontfamily="monospace", zorder=6,
         )
 
     # Legenda manual
@@ -133,11 +141,10 @@ def plot_graph(circles: List[Circle], G: nx.Graph) -> None:
 
 
 if __name__ == "__main__":
-    # Exemplo: C2 está entre C1 e C3 (bloqueio), C4 está livre
     c1 = Circle(center=(0.0, 0.0), radius=1.0, label="C1")
-    c2 = Circle(center=(3.0, 0.0), radius=1.0, label="C2")  # obstáculo
-    c3 = Circle(center=(6.0, 0.0), radius=1.0, label="C3")  # bloqueado por C2
-    c4 = Circle(center=(3.0, 5.0), radius=1.0, label="C4")  # livre
+    c2 = Circle(center=(3.0, 0.0), radius=1.0, label="C2")
+    c3 = Circle(center=(6.0, 0.0), radius=1.0, label="C3")
+    c4 = Circle(center=(3.0, 5.0), radius=1.0, label="C4")
 
     circles = [c1, c2, c3, c4]
 
